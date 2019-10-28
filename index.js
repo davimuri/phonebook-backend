@@ -17,13 +17,13 @@ app.get('/info', (request, response) => {
     Person.countDocuments({}).then(count => {
         console.log(`Number of people: ${count}`)
         response.send(`Phonebook has info for ${count} people <br> ${new Date()}`)
-    });
+    })
 })
 
 app.get('/api/persons', (request, response) => {
     Person.find({}).then(persons => {
         response.json(persons.map(p => p.toJSON()))
-    });
+    })
 })
 
 app.get('/api/persons/:id', (request, response, next) => {
@@ -31,7 +31,7 @@ app.get('/api/persons/:id', (request, response, next) => {
     Person.findById(id)
         .then(p => {
             if (p) {
-                response.json(p.toJSON()) 
+                response.json(p.toJSON())
             } else {
                 response.status(404).end()
             }
@@ -41,12 +41,6 @@ app.get('/api/persons/:id', (request, response, next) => {
 
 app.post('/api/persons', (request, response, next) => {
     const body = request.body
-
-    if (!body.name || !body.number) {
-        return response.status(400).json({ 
-          error: 'content missing' 
-        })
-    }
 
     const person = new Person({
         name: body.name,
@@ -59,14 +53,6 @@ app.post('/api/persons', (request, response, next) => {
         .then(savedAndFormattedPerson => response.json(savedAndFormattedPerson))
         .catch(error => next(error))
 
-    /*if (persons.some(p => p.name.toLowerCase() === person.name.toLowerCase())) {
-        return response.status(400).json({ 
-            error: 'name must be unique' 
-          })
-    }
-
-    persons = persons.concat(person)
-    response.json(person)*/
 })
 
 app.put('/api/persons/:id', (request, response, next) => {
@@ -103,17 +89,17 @@ const errorHandler = (error, request, response, next) => {
     console.error(error.message)
 
     if (error.name === 'CastError' && error.kind === 'ObjectId') {
-      return response.status(400).send({ error: 'malformatted id' })
+        return response.status(400).send({ error: 'malformatted id' })
     } else if (error.name === 'ValidationError') {
         return response.status(400).json({ error: error.message })
     }
-  
+
     next(error)
 }
-  
+
 app.use(errorHandler)
 
 const PORT = process.env.PORT
 app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`)
+    console.log(`Server running on port ${PORT}`)
 })
